@@ -1,29 +1,28 @@
 'use client';
 import React from 'react';
-
+import Spinner from '../Spinner';
+import { set } from 'date-fns';
 function Counter() {
-  const [count, setCount] = React.useState(() => {
-    // Check if window is defined (i.e., we're in a browser context)
-    if (typeof window !== 'undefined') {
-      return Number(window.localStorage.getItem('saved-count') || 0);
-    } else {
-      // If we're not in a browser context (e.g., server-side rendering), default to 0
-      return 0;
-    }
-  });
+  const [count, setCount] = React.useState(null);
 
   React.useEffect(() => {
-    // Check if window is defined (i.e., we're in a browser context)
-    if (typeof window !== 'undefined') {
-      setCount(Number(window.localStorage.getItem('saved-count') || 0));
-    }
+    const savedCount = window.localStorage.getItem('saved-count');
+    setCount(savedCount ? Number(savedCount) : 0);
   }, []);
 
-  return (
+  React.useEffect(() => {
+    if (typeof count === 'number') {
+      window.localStorage.setItem('saved-count', count);
+    }
+  }, [count]);
+
+  const Button = () => (
     <button className='count-btn' onClick={() => setCount(count + 1)}>
-      Count: {count}
+      Count: {typeof count === 'number' ? count : <Spinner />}
     </button>
   );
+
+  return <Button />;
 }
 
 export default Counter;
